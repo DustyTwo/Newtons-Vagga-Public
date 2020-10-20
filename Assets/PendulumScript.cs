@@ -41,6 +41,7 @@ public class PendulumScript : MonoBehaviour
     {
         //plussar på pi för att annars blir den upp och ner
         angularAcceleration = gravityScale * Mathf.Sin(lineToBobAngle + Mathf.PI);
+        //print("value for " + gameObject.name + " is " + Mathf.Sin(lineToBobAngle + Mathf.PI));
         angularVelocity += angularAcceleration;
         lineToBobAngle += angularVelocity;
     }
@@ -55,10 +56,13 @@ public class PendulumScript : MonoBehaviour
     {
         //är nog fel på något sätt >:(
         //tror det måste vara denna som gör att saker teleporteras
-        float temp = lineToBobAngle;
-        lineToBobAngle = Mathf.Deg2Rad * Vector3.Angle(bob.transform.position - origin.transform.position, Vector3.down);
+        //float temp = lineToBobAngle;
+        //lineToBobAngle = Mathf.Deg2Rad * Vector3.Angle(bob.transform.position - origin.transform.position, Vector3.down);
 
-        print(Mathf.Abs(temp - lineToBobAngle));
+        //print(Mathf.Abs(temp - lineToBobAngle));
+
+        //"Har du sätt uppgiftsbeskrvningen? Hårdkodning är tillåtet :)"
+        lineToBobAngle = 0f;
 
         SetBobPosition();
         CorrectLine();

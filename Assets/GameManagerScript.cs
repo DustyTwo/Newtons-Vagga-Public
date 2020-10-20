@@ -13,9 +13,12 @@ public class GameManagerScript : MonoBehaviour
     [SerializeField] float bounciness = 1f;
 
     float debugTotalVelocity;
-
+    float debugTimer;
+    bool debugAnyColHappen;
     void FixedUpdate()
     {
+        debugTimer += Time.fixedDeltaTime;
+        debugAnyColHappen = false;
         collisionCheckAmmount = 0;
         do
         {
@@ -23,13 +26,17 @@ public class GameManagerScript : MonoBehaviour
 
         } while (collisionHappened && collisionCheckAmmount < maxTimesToCheckCollision);
 
-
-        debugTotalVelocity = 0;
-        //for (int i = 0; i < balls.Length; i++)
+        //totala vinkelhastigheten ökar när simuleringn körs, är det rätt?
+        //if (debugAnyColHappen)
         //{
-        //    debugTotalVelocity += balls[i].velocity.magnitude;
+        //    debugTotalVelocity = 0;
+        //    for (int i = 0; i < pendulumBobs.Length; i++)
+        //    {
+        //        debugTotalVelocity += Mathf.Abs(pendulumBobs[i].GetComponentInParent<PendulumScript>().angularVelocity);
+        //    }
+        //    print("total Velocity is: " + debugTotalVelocity + " debug timer: " + debugTimer);
+        //    debugTimer = 0f;
         //}
-        //print("total Velocity is: " + debugTotalVelocity);
     }
 
     //gå igenom alla balls och kolla ifall de är mycket nära varandra 
@@ -60,6 +67,7 @@ public class GameManagerScript : MonoBehaviour
             {
                 if (Vector3.Distance(pendulumBobs[i].transform.position, pendulumBobs[j].transform.position) + 0.002f < pendulumBobs[i].GetComponentInParent<PendulumScript>().bobRadius + pendulumBobs[j].GetComponentInParent<PendulumScript>().bobRadius)
                 {
+                    debugAnyColHappen = true;
                     collisionHappened = true;
                     HandleCollision(pendulumBobs[i], pendulumBobs[j]);
                 }
@@ -93,8 +101,10 @@ public class GameManagerScript : MonoBehaviour
         //how do dis med pendel?
         //uppdatera vinkeln baserat på bobens nya possision och sen fixa bobens possition och hoppas de inte kolliderar (lol)
         //konstigt nog är det delen jag halfassar som ger mig buggs :)
-        ball1.transform.Translate(collisionVector / 2);
-        ball2.transform.Translate(-collisionVector / 2);
+        //hårdkoda att så att vinkeln sätts till 0 vid kollision (:
+
+        //ball1.transform.Translate(collisionVector / 2);
+        //ball2.transform.Translate(-collisionVector / 2);
 
         ball1PendulumScript.FixAngleAfterCollision();
         ball2PendulumScript.FixAngleAfterCollision();
@@ -136,6 +146,16 @@ public class GameManagerScript : MonoBehaviour
 
         //print(ball1.gameObject.name);
 
+        //kollar om vinkelhastigheten i systemet är densamma före och efter kollisionen
+        debugTotalVelocity = 0;
+        for (int i = 0; i < pendulumBobs.Length; i++)
+        {
+            debugTotalVelocity += Mathf.Abs(pendulumBobs[i].GetComponentInParent<PendulumScript>().angularVelocity);
+        }
+        print("Befor col total Velocity is: " + debugTotalVelocity);
+        
+
+
         float velocity1old = Mathf.PI * 2 * ball1.angularVelocity;
         float velocity2old = Mathf.PI * 2 * ball2.angularVelocity;
 
@@ -144,5 +164,16 @@ public class GameManagerScript : MonoBehaviour
 
         ball1.angularVelocity /= Mathf.PI * 2;
         ball2.angularVelocity /= Mathf.PI * 2;
+
+
+
+        //kollar om vinkelhastigheten i systemet är densamma före och efter kollisionen
+        debugTotalVelocity = 0;
+        for (int i = 0; i < pendulumBobs.Length; i++)
+        {
+            debugTotalVelocity += Mathf.Abs(pendulumBobs[i].GetComponentInParent<PendulumScript>().angularVelocity);
+        }
+        print("After col total Velocity is: " + debugTotalVelocity);
+
     }
 }
