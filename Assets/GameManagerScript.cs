@@ -1,24 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManagerScript : MonoBehaviour
 {
     bool collisionHappened;
     int collisionCheckAmmount;
 
-    [SerializeField] BallScript[] balls;
+    //[SerializeField] BallScript[] balls;
     [SerializeField] GameObject[] pendulumBobs;
     [SerializeField] int maxTimesToCheckCollision;
-    [SerializeField] float bounciness = 1f;
+    float bounciness = 1f;
+
+    [SerializeField] Slider dropAngleSlider;
+    [SerializeField] Text dropAngleText;
+    [SerializeField] Slider pendulumsToDropSlider;
+    [SerializeField] Text pendulumsToDropText;
 
     float debugTotalVelocity;
     float debugTimer;
     bool debugAnyColHappen;
+
     void FixedUpdate()
     {
-        debugTimer += Time.fixedDeltaTime;
-        debugAnyColHappen = false;
+        //debugTimer += Time.fixedDeltaTime;
+        //debugAnyColHappen = false;
+
         collisionCheckAmmount = 0;
         do
         {
@@ -26,7 +36,7 @@ public class GameManagerScript : MonoBehaviour
 
         } while (collisionHappened && collisionCheckAmmount < maxTimesToCheckCollision);
 
-        //totala vinkelhastigheten ökar när simuleringn körs, är det rätt?
+        //totala vinkelhastigheten ökar när simuleringn körs
         //if (debugAnyColHappen)
         //{
         //    debugTotalVelocity = 0;
@@ -38,34 +48,52 @@ public class GameManagerScript : MonoBehaviour
         //    debugTimer = 0f;
         //}
     }
+    public void UppdateDropAngleSliderText()
+    {
+        dropAngleText.text = "" + dropAngleSlider.value;
+    }
 
-    //gå igenom alla balls och kolla ifall de är mycket nära varandra 
+    public void UppdatePendulumsToDropSliderText()
+    {
+        pendulumsToDropText.text = "" + pendulumsToDropSlider.value;
+    }
+
+    public void ReloadScene()
+    {
+        for (int i = 0; i < pendulumBobs.Length; i++)
+        {
+            pendulumBobs[i].GetComponentInParent<PendulumScript>().ResetPendulum();
+            
+        }
+        if (dropAngleSlider.value > 0)
+        {
+            for (int i = 0; i < pendulumsToDropSlider.value; i++)
+            {
+                pendulumBobs[i].GetComponentInParent<PendulumScript>().lineToBobAngle = dropAngleSlider.value;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < pendulumsToDropSlider.value; i++)
+            {
+                pendulumBobs[pendulumBobs.Length - i - 1].GetComponentInParent<PendulumScript>().lineToBobAngle = dropAngleSlider.value;
+            }
+        }
+    }
+
+    //gå igenom alla kullor och kolla ifall de är mycket nära varandra 
     void CheckCollision()
     {
         collisionHappened = false;
         collisionCheckAmmount++;
 
-        ////kolla alla bollar (balls)
-        //for (int i = 0; i < pendulumBalls.Length; i++)
-        //{
-        //    //kolla alla bollar som inte redan har kollat alla bollar
-        //    for (int j = i + 1; j < pendulumBalls.Length; j++)
-        //    {
-        //        if (Vector3.Distance(balls[i].transform.position, balls[j].transform.position) < balls[i].radius + balls[j].radius)
-        //        {
-        //            collisionHappened = true;
-        //            HandleCollision(balls[i].gameObject, balls[j].gameObject);
-        //        }
-        //    }
-        //}
-        
-        //kolla alla bollar (pendulums)
+        //kolla alla kullor (pendulums)
         for (int i = 0; i < pendulumBobs.Length; i++)
         {
-            //kolla alla bollar som inte redan har kollat alla bollar
+            //kolla alla kullor som inte redan har kollat alla kullor
             for (int j = i + 1; j < pendulumBobs.Length; j++)
             {
-                if (Vector3.Distance(pendulumBobs[i].transform.position, pendulumBobs[j].transform.position) + 0.002f < pendulumBobs[i].GetComponentInParent<PendulumScript>().bobRadius + pendulumBobs[j].GetComponentInParent<PendulumScript>().bobRadius)
+                if (Vector3.Distance(pendulumBobs[i].transform.position, pendulumBobs[j].transform.position) < pendulumBobs[i].GetComponentInParent<PendulumScript>().bobRadius + pendulumBobs[j].GetComponentInParent<PendulumScript>().bobRadius)
                 {
                     debugAnyColHappen = true;
                     collisionHappened = true;
@@ -76,33 +104,21 @@ public class GameManagerScript : MonoBehaviour
     }
 
 
-    //flytta isär dem och gör whatever
+    //flytta isär dem
     void HandleCollision(GameObject ball1, GameObject ball2)
     {
-        //print(ball1 + " and " + ball2 + " are colliding");
-
-        ////sepparerar bollarna (balls)
-        //Vector3 collisionVector = ball1.transform.position - ball2.transform.position;
-        //float penetrationDepth = ball1.GetComponent<BallScript>().radius + ball2.GetComponent<BallScript>().radius - collisionVector.magnitude;
-        //collisionVector = collisionVector.normalized * penetrationDepth;
-        //ball1.transform.Translate(collisionVector / 2);
-        //ball2.transform.Translate(-collisionVector / 2);
-
-        //OnCollisionBall(ball1.GetComponent<BallScript>(), ball2.GetComponent<BallScript>());
-
         PendulumScript ball1PendulumScript = ball1.GetComponentInParent<PendulumScript>();
         PendulumScript ball2PendulumScript = ball2.GetComponentInParent<PendulumScript>();
 
-        //sepparerar bollarna (pendulums)
-        Vector3 collisionVector = ball1.transform.position - ball2.transform.position;
-        float penetrationDepth = ball1PendulumScript.bobRadius + ball2PendulumScript.bobRadius - collisionVector.magnitude;
-        collisionVector = collisionVector.normalized * penetrationDepth;
+        //sepparerar kulorna (pendulums)
+        //Vector3 collisionVector = ball1.transform.position - ball2.transform.position;
+        //float penetrationDepth = ball1PendulumScript.bobRadius + ball2PendulumScript.bobRadius - collisionVector.magnitude;
+        //collisionVector = collisionVector.normalized * penetrationDepth;
 
         //how do dis med pendel?
         //uppdatera vinkeln baserat på bobens nya possision och sen fixa bobens possition och hoppas de inte kolliderar (lol)
         //konstigt nog är det delen jag halfassar som ger mig buggs :)
         //hårdkoda att så att vinkeln sätts till 0 vid kollision (:
-
         //ball1.transform.Translate(collisionVector / 2);
         //ball2.transform.Translate(-collisionVector / 2);
 
@@ -153,7 +169,7 @@ public class GameManagerScript : MonoBehaviour
             debugTotalVelocity += Mathf.Abs(pendulumBobs[i].GetComponentInParent<PendulumScript>().angularVelocity);
         }
         print("Befor col total Velocity is: " + debugTotalVelocity);
-        
+
 
 
         float velocity1old = Mathf.PI * 2 * ball1.angularVelocity;

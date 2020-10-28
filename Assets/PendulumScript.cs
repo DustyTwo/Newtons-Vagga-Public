@@ -1,20 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PendulumScript : MonoBehaviour
 {
     [SerializeField] GameObject origin;
     [SerializeField] GameObject line;
     [SerializeField] GameObject bob;
-    [SerializeField] float lineLength;
+    [SerializeField] public float lineLength;
 
     [SerializeField] float gravityScale;
-    [SerializeField] float bobMas;
-    [SerializeField] public float bobRadius;
+    //[SerializeField] float bobMas;
+    [HideInInspector] public float bobRadius;
 
     [SerializeField] public float lineToBobAngle;
-    /*[HideInInspector]*/ public float angularVelocity;
+    [HideInInspector] public float angularVelocity;
     [HideInInspector] public float angularAcceleration;
 
     private void Awake()
@@ -22,8 +23,9 @@ public class PendulumScript : MonoBehaviour
         origin = this.transform.Find("Origin").gameObject;
         line = this.transform.Find("Line").gameObject;
         bob = this.transform.Find("Bob").gameObject;
-
-
+    }
+    private void Start()
+    {
         //fixar längden på linan
         lineLength = Vector3.Distance(origin.transform.position, bob.transform.position);
         line.transform.localScale = new Vector3(line.transform.localScale.x, lineLength * 0.5f, line.transform.localScale.z);
@@ -37,11 +39,17 @@ public class PendulumScript : MonoBehaviour
         CorrectLine();
     }
 
+    public void ResetPendulum()
+    {
+        angularVelocity = 0f;
+        angularAcceleration = 0f;
+        lineToBobAngle = 0f;
+    }
+
     void CalculateNewAngle()
     {
         //plussar på pi för att annars blir den upp och ner
-        angularAcceleration = gravityScale * Mathf.Sin(lineToBobAngle + Mathf.PI);
-        //print("value for " + gameObject.name + " is " + Mathf.Sin(lineToBobAngle + Mathf.PI));
+        angularAcceleration = gravityScale * Mathf.Sin(lineToBobAngle + Mathf.PI) * Time.fixedDeltaTime;
         angularVelocity += angularAcceleration;
         lineToBobAngle += angularVelocity;
     }
